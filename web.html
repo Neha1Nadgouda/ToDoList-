@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>To-Do</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            text-align: center;
+        }
+        .container {
+            max-width: 500px;
+            margin: 50px auto;
+            background: white;
+            padding: 20px;
+            box-shadow: 0px 0px 10px gray;
+            border-radius: 10px;
+            animation: fadeIn 1s ease-in;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        input, select {
+            width: 80%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            transition: all 0.3s ease-in-out;
+        }
+        input:focus, select:focus {
+            border-color: #007BFF;
+            box-shadow: 0 0 8px rgba(0, 123, 255, 0.3);
+        }
+        button {
+            padding: 10px 20px;
+            border: none;
+            background: #333;
+            color: white;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background 0.3s ease-in-out, transform 0.2s;
+        }
+        button:hover {
+            background: #555;
+            transform: scale(1.05);
+        }
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+        li {
+            background: #ddd;
+            padding: 10px;
+            margin: 5px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: 5px;
+            transition: all 0.3s ease-in-out;
+            transform: scale(1);
+            animation: slideIn 0.5s ease-in;
+        }
+        @keyframes slideIn {
+            from { transform: translateY(10px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .delete-btn {
+            background:  red;
+            color: white;
+            border: none;
+            cursor: pointer;
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+        .task-category {
+            font-size: 14px;
+            color: #555;
+            margin-left: 10px;
+        }
+        .popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 20px;
+            box-shadow: 0px 0px 10px gray;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>📋 To-Do List</h2>
+        <p id="ai-suggestion">👾 Need a task idea? Click below!</p>
+        <button onclick="suggestTask()">✨ AI Suggest Task</button>
+        <input type="text" id="taskInput" placeholder="📝 Add a new task...">
+        <select id="categoryInput">
+            <option value="Work">💼 Work</option>
+            <option value="Personal">🏠︎ Personal</option>
+            <option value="Urgent">❗ Urgent</option>
+        </select>
+        <button onclick="addTask()">✙ Add</button>
+        <ul id="taskList"></ul>
+    </div>
+    <div id="popup" class="popup">
+        <p>✅ Task Added Successfully!</p>
+    </div>
+    <script>
+        document.addEventListener("DOMContentLoaded", loadTasks);
+
+        function suggestTask() {
+            const suggestions = [
+                "📄 Complete a project proposal",
+                "📚 Read 10 pages of a book",
+                "🧹 Organize your workspace",
+                "📞 Call a friend or family member",
+                "🏋️‍♂️ Plan your next workout",
+                " 📅 organize a meeting ",
+                " 🥗 Diet to be followed"
+            ];
+            let randomTask = suggestions[Math.floor(Math.random() * suggestions.length)];
+            document.getElementById("taskInput").value = randomTask;
+        }
+
+        function addTask() {
+            let taskInput = document.getElementById("taskInput");
+            let categoryInput = document.getElementById("categoryInput");
+            let taskText = taskInput.value.trim();
+            let category = categoryInput.value;
+            if (taskText === "") return;
+            
+            let li = document.createElement("li");
+            li.innerHTML = `<span>${taskText} <span class='task-category'>(${category})</span></span> <button class='delete-btn' onclick='removeTask(this)'>❌</button>`;
+            document.getElementById("taskList").appendChild(li);
+            
+            saveTasks();
+            taskInput.value = "";
+            showPopup();
+        }
+
+        function removeTask(button) {
+            button.parentElement.remove();
+            saveTasks();
+        }
+
+        function saveTasks() {
+            let tasks = [];
+            document.querySelectorAll("#taskList li").forEach(li => {
+                let taskText = li.querySelector("span").textContent;
+                tasks.push(taskText);
+            });
+            localStorage.setItem("tasks", JSON.stringify(tasks));
+        }
+
+        function loadTasks() {
+            let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+            tasks.forEach(task => {
+                let li = document.createElement("li");
+                li.innerHTML = `<span>${task}</span> <button class='delete-btn' onclick='removeTask(this)'>❌</button>`;
+                document.getElementById("taskList").appendChild(li);
+            });
+        }
+
+        function showPopup() {
+            let popup = document.getElementById("popup");
+            popup.style.display = "block";
+            setTimeout(() => {
+                popup.style.display = "none";
+            }, 2000);
+        }
+    </script>
+</body>
+</html>
